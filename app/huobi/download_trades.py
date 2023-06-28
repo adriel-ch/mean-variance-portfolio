@@ -1,6 +1,6 @@
-from const import *
-from utils import *
-from download import *
+from huobi.const import *
+from huobi.utils import *
+from huobi.download import *
 
 data_type = 'trades'
 
