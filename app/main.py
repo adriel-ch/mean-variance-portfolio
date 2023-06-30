@@ -3,6 +3,7 @@ import sys
 import huobi.download_klines as kline
 import datetime as dt
 import dataprep
+import mvo.mvo
 
 import huobi.const
 import huobi.utils
@@ -32,5 +33,5 @@ if __name__ == "__main__":
     df = dataprep.join_all_closing_price(start_date, end_date, data_period, symbol_list)
     print(df)
 
-
     # import data into pandas for mean variance optim
+    mvo.mvo.mean_variance_opt(df)
