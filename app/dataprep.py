@@ -1,6 +1,7 @@
 import pandas as pd
 import glob
 import datetime as dt
+import os
 
 data_dir = "app/data"
 
@@ -10,6 +11,11 @@ def zips_to_csv_appended(start_date, end_date, selected_data_period: list, selec
     """
     zip_data_dir = data_dir + "/zips"
     col_headers = ["id-time", "open", "close", "high", "low", "vol", "amount"]
+
+    wd = os.getcwd()
+    savepath = wd + "/" + zip_data_dir
+    if not os.path.exists(os.path.dirname(savepath)):
+        os.mkdir(os.path.dirname(savepath))
 
     for symbols in selected_symbols:
         for period in selected_data_period: # for future expansion for more data periods
@@ -54,3 +60,13 @@ def join_all_closing_price(start_date, end_date, selected_data_period: list, sel
         df_list.append(get_closing_price(start_date, end_date, selected_data_period[0], symbol))
 
     return pd.concat(df_list, axis="columns")
+
+def save_weights(weights_array_list: list, filepath: str):
+    wd = os.getcwd()
+    savepath = wd + "/" + filepath
+    if not os.path.exists(os.path.dirname(savepath)):
+        os.makedirs(os.path.dirname(savepath))
+
+    df = pd.DataFrame(weights_array_list)
+    df.to_csv(filepath)
+    print(f"Portfolio weights saved to: {filepath}")

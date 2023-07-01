@@ -20,8 +20,10 @@ def http_download(url: str) -> tuple:
         if just_show:
             print(f'{file_name}<---{url}')
         else:
-            file_name = "app/data/zips/" + os.path.basename(url) # added folder structure
-            # file_name = "/data/zips/" + os.path.basename(url) # added folder structure
+            dir_path = os.getcwd() + "/" + "app/data/zips/"
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+            file_name = dir_path + os.path.basename(url) # added folder structure
             with open(file_name, 'wb') as f:
                 f.write(data.content)
     except Exception as e:

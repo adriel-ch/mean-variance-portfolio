@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import scipy.optimize as scp
 import matplotlib.pyplot as plt
+import os
 
 np.set_printoptions(suppress=True) # suppress sci notation
 
@@ -142,11 +143,11 @@ def minimize_risk_constr(mean_returns: np.ndarray,
 
 def mean_variance_opt(df: pd.DataFrame, symbolList: list):
     ror = rate_of_return(df)
-    print("Rate of eturn for hourly period\n", ror, "\n")
+    print("Rate of return for hourly period\n", ror, "\n")
 
     # mean returns
     mean_ror = np.mean(ror, axis=0)
-    print("Mean ROR\n", mean_ror, "\n")
+    print("Mean ROR over the time period\n", mean_ror, "\n")
 
     # Mean return of the entire portfolio per interval (hr)
     # Equally weighted cotribution to the mean
@@ -226,11 +227,11 @@ def mean_variance_opt(df: pd.DataFrame, symbolList: list):
 def eff_frontier(risk_point: np.ndarray,
                  return_point: np.ndarray,
                  save_plot: bool = False,
-                 save_output: str = ""
+                 filepath: str = ""
                  ) -> None:
     no_points = risk_point.size
 
-    colours = "blue"
+    colours = "red"
     area = np.pi*3
 
     plt.title(f'Efficient Frontier for selected portfolio')
@@ -238,10 +239,16 @@ def eff_frontier(risk_point: np.ndarray,
     plt.ylabel('Annualized Expected Portfolio Return(%)' )
     plt.scatter(risk_point, return_point, s=area, c=colours, alpha =0.5)
 
+    wd = os.getcwd()
+    savepath = wd + "/" + filepath
+    if not os.path.exists(os.path.dirname(savepath)):
+        os.makedirs(os.path.dirname(savepath))
+
     if save_plot == True:
-        plt.savefig(save_output)
+        plt.savefig(filepath)
     
-    plt.show()
+    # plt.show()
     plt.close()
+    print(f"Portfolio plot saved to: {filepath}")
     
     return
