@@ -24,6 +24,13 @@ The weights vector will be saved in: `./app/output/weights/`
 
 The efficient frontier plot will be saved in: `./app/output/plots/`
 
+## How to start
+
+```shell
+pipenv install -r requirements.txt
+pipenv run python app/main.py
+```
+
 ## Mean Variance Optimisation
 
 ### Rate of Return
