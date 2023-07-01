@@ -1,9 +1,9 @@
 import datetime as dt
 
-import dataprep
 import numpy as np
 import pandas as pd
 import scipy.optimize as scp
+import matplotlib.pyplot as plt
 
 np.set_printoptions(suppress=True) # suppress sci notation
 
@@ -95,8 +95,6 @@ def minimize_risk_constr(mean_returns: np.ndarray,
                          ) -> scp.OptimizeResult:
     """Function obtains optimal weights sets given min_risk and max_return constraints
 
-    May not work for negative values of R.
-
     Parameters
     ----------
     mean_returns : Input 1-D array of mean return of assets in the portfolio
@@ -142,33 +140,25 @@ def minimize_risk_constr(mean_returns: np.ndarray,
     
     return opt
 
-
-# start_date = dt.datetime(2023, 5, 1)
-# end_date = dt.datetime(2023, 5, 2)
-# symbol_list = ["BTC-USD", "ETH-USD", "LTC-USD"]
-# data_period = ["60min"]
-
-# df = dataprep.join_all_closing_price(start_date, end_date, data_period, symbol_list)
-# print(df)
-
-def mean_variance_opt(df: pd.DataFrame):
+def mean_variance_opt(df: pd.DataFrame, symbolList: list):
     ror = rate_of_return(df)
+    print("Rate of eturn for hourly period\n", ror, "\n")
 
     # mean returns
-    mean_ror = np.mean(ror, axis=0) # * (-0.5) # added -1 to test +ve return
-    print("Mean ROR\n", mean_ror)
+    mean_ror = np.mean(ror, axis=0)
+    print("Mean ROR\n", mean_ror, "\n")
 
     # Mean return of the entire portfolio per interval (hr)
     # Equally weighted cotribution to the mean
     portfolio_ror = np.mean(ror, axis=1) # or market ror
-    print("Portfolio ROR\n", portfolio_ror)
+    # print("Portfolio ROR\n", portfolio_ror)
 
     # Covariance matrix of the assets within ror against each other
     covar_ror = np.cov(ror, rowvar=False) # rowvar = False because variables(assets) are in the cols
-    print("Covariance Matrix assets within portfolio\n", covar_ror)
+    print("Covariance Matrix of assets within portfolio\n", covar_ror, "\n")
 
     # Compute betas of assets in the portfolio
-    cols = ror.shape[1]
+    rows, cols = ror.shape
     beta = []
     portfolio_ror_variance = np.var(portfolio_ror, ddof = 1)
     for i in range(cols):
@@ -179,7 +169,7 @@ def mean_variance_opt(df: pd.DataFrame):
         # print("Covar Value: ", covar) 
         beta.append(covar / portfolio_ror_variance)
 
-    print("Beta Values: ", beta)
+    print("Beta Values: ", beta, "\n")
 
     # weights = np.array([0.33333, 0.33333, 0.33333])
 
@@ -198,12 +188,12 @@ def mean_variance_opt(df: pd.DataFrame):
     max_returns = maximize_returns(mean_ror, cols)
     max_returns_weight = max_returns.x
     max_expect_portfolio_ror = np.matmul(mean_ror.T, max_returns_weight)
-    print("Max expected portfolio return R_max_rt\n", max_expect_portfolio_ror)
+    print("Max expected portfolio return\nR_max_rt: ", max_expect_portfolio_ror, "\n")
 
     min_risk_return = minimize_risk(covar_ror, cols)
     min_risk_return_weight = min_risk_return.x
     min_risk_expected_portfolio_ror = np.matmul(mean_ror.T, min_risk_return_weight)
-    print("Min risk expected portfolio return R_min_risk\n", min_risk_expected_portfolio_ror)
+    print("Min risk expected portfolio return\nR_min_risk: ", min_risk_expected_portfolio_ror, "\n")
 
     # Compute efficient set for the maximum return and minimum risk portfolios
     increment = 0.001
@@ -227,5 +217,31 @@ def mean_variance_opt(df: pd.DataFrame):
     risk_point = np.sqrt(min_risk_point * 365) # annualised
     return_point = 365 * np.array(expected_portfolio_return_point) # annualised
 
-    print("Optimal weights array\n", x_optimal_array)
-    print("annual risk / annual return\n", np.c_[risk_point, return_point])
+    print("Optimal weights array\n", x_optimal_array, "\n")
+    print("Annual risk | Annual return\n", np.c_[risk_point, return_point], "\n")
+    # print("risk / return\n", np.c_[min_risk_point, expected_portfolio_return_point])
+
+    return x_optimal_array, risk_point, return_point
+
+def eff_frontier(risk_point: np.ndarray,
+                 return_point: np.ndarray,
+                 save_plot: bool = False,
+                 save_output: str = ""
+                 ) -> None:
+    no_points = risk_point.size
+
+    colours = "blue"
+    area = np.pi*3
+
+    plt.title(f'Efficient Frontier for selected portfolio')
+    plt.xlabel('Annualized Risk(%)')
+    plt.ylabel('Annualized Expected Portfolio Return(%)' )
+    plt.scatter(risk_point, return_point, s=area, c=colours, alpha =0.5)
+
+    if save_plot == True:
+        plt.savefig(save_output)
+    
+    plt.show()
+    plt.close()
+    
+    return

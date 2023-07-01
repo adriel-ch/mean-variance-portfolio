@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     # download data
     start_date = dt.datetime(2023, 5, 1)
-    end_date = dt.datetime(2023, 5, 2)
+    end_date = dt.datetime(2023, 6, 1)
     symbol_list = ["BTC-USD", "ETH-USD", "LTC-USD"]
     data_period = ["60min"]
     # kline.download_daily_future(start_date, end_date, ["60min"], ["BTC230630"])
@@ -34,4 +34,21 @@ if __name__ == "__main__":
     print(df)
 
     # import data into pandas for mean variance optim
-    mvo.mvo.mean_variance_opt(df)
+    weights_array, risk_array, return_array = mvo.mvo.mean_variance_opt(df, symbol_list)
+    weights_rows, weights_cols = weights_array.shape
+
+    weights_list = []
+
+    for i in range(weights_rows):
+        weights_dict = {}
+        for j in range(weights_cols):
+            weights_dict[symbol_list[j]] = weights_array[i, j]
+            
+        weights_dict["annualised-risk"] = risk_array[i]
+        weights_dict["annualised-return"] = return_array[i]
+        weights_list.append(weights_dict)
+
+    # for i in range(len(weights_list)):
+    #     print(weights_list[i])
+
+    mvo.mvo.eff_frontier(risk_array, return_array, True, save_output="app/output/plots/plot.png")
