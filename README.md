@@ -31,6 +31,13 @@ pipenv install -r requirements.txt
 pipenv run python app/main.py
 ```
 
+### Via Docker
+
+```shell
+docker build -t mean-var-opt .
+docker run mean-var-opt
+```
+
 ## Mean Variance Optimisation
 
 ### Rate of Return
