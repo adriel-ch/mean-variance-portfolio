@@ -26,6 +26,8 @@ The efficient frontier plot will be saved in: `./app/output/plots/`
 
 ## How to start
 
+Ensure that you have `Python` version >= 3.9, `pip`, and `pipenv` installed.
+
 ```shell
 pipenv install -r requirements.txt
 pipenv run python app/main.py
